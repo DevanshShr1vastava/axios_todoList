@@ -1,16 +1,16 @@
 document.addEventListener("DOMContentLoaded",function(){
     const inputTodo = document.getElementById('input-todo');
     const addTodoButton = document.getElementById('button-todo');
-    const ulContainer = document.getElementById('list-todo');
+    const todoListContainer = document.getElementById('list-todo');
     const deleteAllTodo = document.getElementById('deleteAll-todo');
     const changeThemebutton = document.getElementById('changeTheme');
     const statusBox = document.querySelector('.card-text');
-    const confirmDeleteModal = new bootstrap.Modal(document.getElementById('staticBackdrop'));
     const confirmDeleteButton = document.querySelector('#staticBackdrop .btn-danger');
 
-    const fakeAPI = axios.create({baseURL:'https://jsonplaceholder.typicode.com'})
+    const confirmDeleteModal = new bootstrap.Modal(document.getElementById('staticBackdrop'));
+    const fakeAPI = axios.create({baseURL:'https://jsonplaceholder.typicode.com'});
 
-    let deleteElement = [];
+    let elementsToDelete = [];
 
     const statusBoxUpdate = (res) =>{
         const displayContent = `Status Code : ${res.status} \n ${JSON.stringify(res.data)}`;
@@ -25,8 +25,8 @@ document.addEventListener("DOMContentLoaded",function(){
         <div class="btn-group" role="group" aria-label="Basic mixed styles example">
             <button type="button" class="btn btn-danger">✏️</button>
             <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#staticBackdrop">🗑️</button>
-        </div>`
-        listTodo.appendChild(li);
+        </div>`;
+        todoListContainer.appendChild(li);
     }
 
     const saveAllTodo=()=>{
@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded",function(){
 
     const loadAllTodo=()=>{
         const allTodos = JSON.parse(localStorage.getItem('allTodos'))  || [];
-        allTodos.forEach((task)=>createTodo(task))
+        allTodos.forEach((task)=>createTodo(task));
     }
     loadAllTodo();
 
@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded",function(){
         fakeAPI.post('/todos',{
             title:text,
             completed:false
-        }).then((res)=>statusBoxUpdate(text))
+        }).then((res)=>statusBoxUpdate(res));
         
         createTodo(text)
         inputTodo.value = '';
@@ -76,27 +76,27 @@ document.addEventListener("DOMContentLoaded",function(){
 
     confirmDeleteButton.addEventListener('click',()=>{
 
-        if(deleteElement) {
+        if(elementsToDelete) {
             fakeAPI.delete(`/todos/${1}`)
             .then((res)=>{
                 console.log("Status",res);
                 statusBoxUpdate(res);
             })
-            deleteElement.forEach((task)=>task.remove());
+            elementsToDelete.forEach((task)=>task.remove());
         }
-        deleteElement = [];
+        elementsToDelete = [];
         saveAllTodo();
         confirmDeleteModal.hide();
     })
 
     deleteAllTodo.addEventListener('click',()=>{
         confirmDeleteModal.show();
-        deleteElement = [...document.querySelectorAll('.list-group-item')];
+        elementsToDelete = [...document.querySelectorAll('.list-group-item')];
     })
 
-    ulContainer.addEventListener('click',(e)=>{
+    todoListContainer.addEventListener('click',(e)=>{
         if(e.target.classList.contains('btn-warning')){
-            deleteElement =[e.target.closest('.list-group-item')];
+            elementsToDelete =[e.target.closest('.list-group-item')];
             confirmDeleteModal.show();
         }
 
@@ -107,28 +107,29 @@ document.addEventListener("DOMContentLoaded",function(){
             const taskText = li.querySelector('.text-todo').textContent;
 
             const editInput = document.createElement('input');
-            const saveEdit = document.createElement('button')
-            editInput.classList.add('form-control')
+            const saveEdit = document.createElement('button');
+            editInput.classList.add('form-control');
             editInput.value = taskText;
-            saveEdit.textContent = "Save"
+            saveEdit.textContent = "Save";
             saveEdit.className ='btn btn-outline-danger';
 
             saveEdit.addEventListener('click',()=>{
                 console.log("Updated the item stored in the fake database");
 
+                textSpan.textContent = editInput.value;
+                li.replaceChild(textSpan,editInput);
+                li.replaceChild(buttonGroup,saveEdit);
+
                 fakeAPI.patch(`/todos/${1}`,{
                         title:editInput.value,
-                        completed:false
-                    }).then((res)=>statusBoxUpdate(res))
+                        completed:true
+                    }).then((res)=>statusBoxUpdate(res));
 
-                textSpan.textContent = editInput.value;
-                li.replaceChild(textSpan,editInput)
-                li.replaceChild(buttonGroup,saveEdit)
                 saveAllTodo();
             })            
 
-            li.replaceChild(editInput,li.firstChild);
-            li.replaceChild(saveEdit, li.lastChild);
+            li.replaceChild(editInput,textSpan);
+            li.replaceChild(saveEdit, buttonGroup);
         }
 
     })
