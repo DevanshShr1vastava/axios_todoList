@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded",function(){
     const addTodoButton = document.getElementById('button-todo');
     const todoListContainer = document.getElementById('list-todo');
     const deleteAllTodo = document.getElementById('deleteAll-todo');
-    const changeThemebutton = document.getElementById('changeTheme');
+    const changeThemeButton = document.getElementById('changeTheme');
     const statusBox = document.querySelector('.card-text');
     const confirmDeleteButton = document.querySelector('#staticBackdrop .btn-danger');
 
@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded",function(){
         });
     }
 
-    changeThemebutton.addEventListener('click',(e)=>{
+    changeThemeButton.addEventListener('click',(e)=>{
         e.preventDefault();
         document.querySelector('html').getAttribute('data-bs-theme') === 'dark' ? document.querySelector('html').setAttribute('data-bs-theme','light'): document.querySelector('html').setAttribute('data-bs-theme','dark');
     })
